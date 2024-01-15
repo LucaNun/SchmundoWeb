@@ -1,0 +1,4 @@
+venv/
+*.pyc
+secret.py
+.DS_Store
