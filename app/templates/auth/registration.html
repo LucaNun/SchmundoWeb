@@ -1,0 +1,33 @@
+<!doctype html>
+<meta>
+  <title>Sign-up</title>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  <link href="https://fonts.googleapis.com/css?family=Baloo+Thambi+2&display=swap" rel="stylesheet">
+  <link rel="icon" href="{{ url_for('static', filename='pic/Logo-o-H-1.png') }}">
+</meta>
+
+<body>
+  {% with messages = get_flashed_messages(category_filter=["error", "info"]) %}
+    {% if messages %}
+      <ul class=flashes>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  <div class="container">
+    <form method="POST">
+      <a href="/"> <img src="{{ url_for('static', filename='pic/Logo-o-H-1-t.png') }}" alt="logo" width="90%"/> </a>
+      <h1>Sign-up</h1>
+      <input type="text" name="lastname" placeholder="Nachname" required><br>
+      <input type="text" name="firstname" placeholder="Vorname" required><br>
+      <input type="text" name="username" placeholder="Username" required><br>
+      <input type="text" name="email" placeholder="EMail" required><br>
+      <input type="password" name="password" placeholder="Passwort" required><br>
+      <button type="submit" name="submit" class="submit">Sign-up</button>
+    </form>
+    <a href="/auth/login">Login</a><br>
+    <a href='/auth/'>Zurück</a>
+  </div>
+</body>
