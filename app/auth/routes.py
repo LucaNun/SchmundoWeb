@@ -1,6 +1,7 @@
 from flask import request, session, redirect, url_for, render_template, flash
+from flask_mail import Message
 from app.auth import bp
-from app.extensions import mysql
+from app.extensions import mysql, mail
 
 from werkzeug.security import generate_password_hash, check_password_hash
 import hashlib
@@ -22,7 +23,7 @@ def index():
     return f'''UserID: {user}<br>
     <a href="/auth/login">Login</a><br>
     <a href="/auth/logout">Logout</a><br>
-    <a href="/auth/regestration">Regestration</a><br>
+    <a href="/auth/registration">Registration</a><br>
     <a href="/">Main</a>'''
 
 
@@ -47,7 +48,12 @@ def login():
             flash("Check deine Eingabe!", "info")
             return render_template("auth/login.html"), 401
         if result[2] == 0:
-            # TODO sende eine Mail mit aktivierungs url
+            cursor = mysql.connection.cursor()
+            cursor.execute(f"SELECT `url` FROM `userVerified` WHERE `userID` = '{result[0]}'")
+            url = str(cursor.fetchone()[0])
+            msg = Message("Acitvate Account", [data.get("email")])
+            msg.html = render_template("auth/mail/activateCode.html", code=url)
+            mail.send(msg)
             flash("Bitte aktiviere zuerst dein Konto!", "info")
             return render_template("auth/login.html"), 401
         session["userID"] = result[0]
@@ -81,7 +87,6 @@ def registration():
         result = cursor.fetchone()
         cursor.close()
         if result is not None:
-            # TODO sende eine Mail
             flash("Dein Konto wurde angelegt, schau in deinem Posteingang!", "info")
             return redirect(url_for("auth.login"))
         hash = generate_password_hash(data.get("password"))
@@ -96,14 +101,16 @@ def registration():
                        (result, url))
         mysql.connection.commit()
         cursor.close()
-        # TODO sende eine Mail mit aktivierungs url
+        msg = Message("Acitvate Account", [data.get("email")])
+        msg.html = render_template("auth/mail/activateCode.html", code=url)
+        mail.send(msg)
         flash("Dein Konto wurde angelegt, schau in deinem Posteingang!", "info")
         return redirect(url_for("auth.login"))
     return render_template("auth/registration.html")
 
 
-@bp.route("/verifie/<url>", methods=["GET"])
-def verifie(url):
+@bp.route("/verify/<url>", methods=["GET"])
+def verify(url):
     cursor = mysql.connection.cursor()
     cursor.execute(f"SELECT `userID` FROM userVerified WHERE url = '{url}'")
     result = cursor.fetchone()

@@ -1,7 +1,7 @@
 from flask import Flask
 
 from config import Config
-from app.extensions import mysql
+from app.extensions import mysql, mail
 
 def create_app(config=Config):
     app = Flask(__name__)
@@ -9,6 +9,7 @@ def create_app(config=Config):
     
     # Extentions
     mysql.init_app(app)
+    mail.init_app(app)
 
     # Blueprints
     from app.main import bp as main_bp
