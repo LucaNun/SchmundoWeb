@@ -1,0 +1,28 @@
+<!doctype html>
+<meta>
+  <title>Create Recipe</title>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  <link href="https://fonts.googleapis.com/css?family=Baloo+Thambi+2&display=swap" rel="stylesheet">
+  <link rel="icon" href="{{ url_for('static', filename='pic/Logo-o-H-1.png') }}">
+</meta>
+
+<body>
+  <input type="text" hx-get="/recipe/load"
+  hx-trigger="keyup"
+  hx-target="#test">
+  <div style="height:110vh">
+    Test
+  </div>
+  
+  <div id="test"></div>
+  <tr hx-get="/recipe/load"
+    hx-trigger="revealed"
+    hx-swap="afterend">
+    <td>Agent Smith</td>
+    <td>void29@null.org</td>
+    <td>55F49448C0</td>
+  </tr>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+</body>
