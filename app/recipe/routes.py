@@ -92,10 +92,33 @@ def infinity():
 
 @bp.route('/load')
 def load():
-    args = request.args
-    print(args)
+    page = request.args.get("page")
     cursor = mysql.connection.cursor()
-    cursor.execute(f"SELECT * FROM user")
-    result = cursor.fetchone()
+    cursor.execute(f"SELECT * FROM ingredients")
+    result = cursor.fetchall()
     cursor.close()
-    return f""" {result} """
+    page = int(page) + 1 
+    returnItem = ""
+    rLen = len(result) - 1
+    for counter, item in enumerate(result):
+        if counter == rLen:
+            returnItem += (f'<tr hx-get="/recipe/load?page={page}" hx-trigger="revealed" hx-swap="afterend"><td>{item[0]}</td><td>{item[1]}</td><td>{item[2]}</td></tr>')
+        else:
+            returnItem += (f"<tr><td>{item[0]}</td><td>{item[1]}</td><td>{item[2]}</td></tr>")
+    return returnItem, 200
+
+@bp.route('/search')
+def search():
+    inputUser = request.args.get("search")
+    if inputUser == "":
+        return ""
+    cursor = mysql.connection.cursor()
+    cursor.execute(f"SELECT * FROM `ingredients` where `name` like '%{inputUser}%' LIMIT 10")
+    result = cursor.fetchall()
+    cursor.close()
+    if result == None:
+        return ""
+    returnItem = ""
+    for item in result:
+        returnItem += (f"<tr><td>{item[0]}</td><td>{item[1]}</td><td>{item[2]}</td></tr>")
+    return returnItem, 200
