@@ -56,12 +56,9 @@ def create():
     cursor.execute(f"SELECT * FROM unit")
     units = cursor.fetchall()
 
-    cursor = mysql.connection.cursor()
-    cursor.execute(f"SELECT * FROM ingredients")
-    ingredients = cursor.fetchall()
     cursor.close()
     #print(recipeCategory)
-    return render_template("recipe/create.html", enumerate=enumerate, recipeCategory=recipeCategory, units=units, ingredients=ingredients)
+    return render_template("recipe/create.html", enumerate=enumerate, recipeCategory=recipeCategory, units=units)
 
     """
     Daten auf der Webseite anzeigen:
@@ -82,8 +79,9 @@ def create():
     return """ """
 
 @bp.route('/change/<id>')
-@login_required
-def change():
+#@login_required
+def change(id):
+    print(request.args)
     return """ """
 
 @bp.route('/infinity')
@@ -113,12 +111,9 @@ def search():
     if inputUser == "":
         return ""
     cursor = mysql.connection.cursor()
-    cursor.execute(f"SELECT * FROM `ingredients` where `name` like '%{inputUser}%' LIMIT 10")
+    cursor.execute(f"SELECT * FROM `ingredients` where `name` like '%{inputUser}%' LIMIT 3")
     result = cursor.fetchall()
     cursor.close()
     if result == None:
         return ""
-    returnItem = ""
-    for item in result:
-        returnItem += (f"<tr><td>{item[0]}</td><td>{item[1]}</td><td>{item[2]}</td></tr>")
-    return returnItem, 200
+    return render_template("recipe/form/ingredients.html", ingredients=result)

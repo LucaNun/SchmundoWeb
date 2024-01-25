@@ -1,7 +1,7 @@
 <!doctype html>
 <meta>
   <title>Create Recipe</title>
-  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
   <link href="https://fonts.googleapis.com/css?family=Baloo+Thambi+2&display=swap" rel="stylesheet">
   <link rel="icon" href="{{ url_for('static', filename='pic/Logo-o-H-1.png') }}">
 </meta>
@@ -19,25 +19,39 @@
   <div class="container">
     <form method="POST" enctype="multipart/form-data">
       <a href="/"> <img src="{{ url_for('static', filename='pic/Logo-o-H-1-t.png') }}" alt="logo" width="90%"/> </a>
-      <h1>Login</h1>
+      <h1>Create Recipe</h1>
         {% if recipeCategory %}
             {% for cat in recipeCategory %}
                 <input type="checkbox" name="cat" data-inID="10" value="{{cat[0]}}" id="">{{cat[2]}}<br>
-                <a value="10"></a><br>
             {% endfor %}
         {% endif %}
 
-        {% if ingredients %}
-            {% for item in ingredients %}
-                {{item}}<br>
-            {% endfor %}
-        {% endif %}
+        <input type="search" hx-get="/recipe/search"
+        hx-trigger="input changed delay:100ms, search"
+        hx-target="#ingredients-search" name="search">
 
-      ingredients
-      units
-      <button type="submit" name="submit" class="submit">Sign-up</button>
+        <div id="ingredients-search"></div>
+        <div id="ingredients"></div>
+      <div id="ingredients-template" hidden>
+        <div class="input-group" style="margin-top: 10px;">
+          <span class="input-group-text">Name</span>
+          <input class="form-control" type="number">
+          <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle rounded-0 rounded-end" aria-expanded="false" data-bs-toggle="dropdown" id="head1" type="button">Dropdown </button>
+              <div class="dropdown-menu">
+                {% for unit in units %}
+                <a class="dropdown-item" data-value="{{unit[0]}}" data-head="head1">{{unit[1]}}</a>
+                {% endfor %}
+              </div>
+          </div>
+        </div>
+      </div>
+      <button type="submit" name="submit" class="submit">Create New</button>
     </form>
     <a href='/recipe/'>Zurück</a>
   </div>
   <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/newRecipe.js') }}"></script>
 </body>
