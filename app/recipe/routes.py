@@ -1,5 +1,6 @@
 from flask import request, session, redirect, url_for, render_template, flash
 from markupsafe import escape
+import re
 
 from app.recipe import bp
 from app.extensions import mysql
@@ -17,36 +18,60 @@ def index():
     """
 
 @bp.route('/create', methods=["GET", "POST"])
-#@login_required
+@login_required
 def create():
     if request.method == "POST":
-        print(request.form)
-        print(request.files)
-        return redirect(url_for("recipe.index"))
-        """
-        Inhalte zu der Datenbank hinzufügen:
+        reIng = r"^ing-(?P<number>\d+)"
+        reIngUnit = r"^ing-unit-(?P<number>\d+)"
+        reStep = r"^step-(?P<number>\d+)"
+        reStepDuration = r"^step-duration-(?P<number>\d+)"
 
-        recipe:
-        userID
-        Name
-        amount (Personenmenge)
+        ingredients = {}
+        steps = {}
+        # Find all ingredients and steps via regex
+        for item in request.form:           
+            if re.match(reIng, item):
+                number = re.match(reIng, item).group("number")
+                if not ingredients.get(number):
+                    ingredients[number] = {}
+                ingredients[number]["weight"] = request.form[item]
+            elif re.match(reIngUnit, item):
+                number = re.match(reIngUnit, item).group("number")
+                if not ingredients.get(number):
+                    ingredients[number] = {}
+                ingredients[number]["unit"] = request.form[item]
 
-        recipeStep:
-        recipeID
-        step
-        text
-        duration
+            elif re.match(reStep, item):
+                number = re.match(reStep, item).group("number")
+                if not steps.get(number):
+                    steps[number] = {}
+                steps[number]["text"] = request.form[item]
+            elif re.match(reStepDuration, item):
+                number = re.match(reStepDuration, item).group("number")
+                if not steps.get(number):
+                    steps[number] = {}
+                steps[number]["duration"] = request.form[item]    
 
-        recipeToCategory:
-        recipeID
-        recipeCategoryID
+        cursor = mysql.connection.cursor()
+        cursor.execute("INSERT INTO recipe (`userID`,`Name`,`amount`) VALUES (%s,%s,%s)", 
+                       (session["userID"],request.form.get("name"),request.form.get("amount")))
+        mysql.connection.commit()
+        recipeID = cursor.lastrowid
 
-        ingredientsToRecipe:
-        ingredientsID
-        recipeID
-        weight
-        unitID
-        """
+        cursor.execute("INSERT INTO recipeToCategory (`recipeID`,`recipeCategoryID`) VALUES (%s,%s)", 
+                       (recipeID,request.form.get("cat")))
+
+        for item in ingredients:
+            cursor.execute("INSERT INTO ingredientsToRecipe (`recipeID`,`ingredientsID`,`weight`,`unitID`) VALUES (%s,%s,%s,%s)", 
+                       (recipeID,item,ingredients[item]["weight"],ingredients[item]["unit"]))
+
+        for step in steps:
+            cursor.execute("INSERT INTO recipeStep (`recipeID`,`step`,`text`,`duration`) VALUES (%s,%s,%s,%s)", 
+                       (recipeID,step,steps[step]["text"],steps[step]["duration"]))
+        mysql.connection.commit()
+        cursor.close()
+        flash("Rezept wurde erfolgreich angelegt!", "info")
+        return redirect(url_for("recipe.create"))
 
     cursor = mysql.connection.cursor()
     cursor.execute(f"SELECT * FROM recipeCategory")
@@ -57,26 +82,7 @@ def create():
     units = cursor.fetchall()
 
     cursor.close()
-    #print(recipeCategory)
     return render_template("recipe/create.html", enumerate=enumerate, recipeCategory=recipeCategory, units=units)
-
-    """
-    Daten auf der Webseite anzeigen:
-    recipeCategory:
-    recipeCategoryID
-    Name
-    superiorID -> geordnet
-
-    unit:
-    unitID
-    name
-
-    ingredients:
-    ingredientsID
-    Name
-    """
-
-    return """ """
 
 @bp.route('/change/<id>')
 #@login_required

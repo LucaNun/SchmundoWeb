@@ -20,35 +20,46 @@
     <form method="POST" enctype="multipart/form-data">
       <a href="/"> <img src="{{ url_for('static', filename='pic/Logo-o-H-1-t.png') }}" alt="logo" width="90%"/> </a>
       <h1>Create Recipe</h1>
+        <input type="text" name="name" placeholder="Name" required><br>
+        <input type="number" name="amount" placeholder="Personenmenge" required><br>
         {% if recipeCategory %}
+          <select name="cat" required>
+            <option value="">Wähle eine Kathegorie aus</option>
             {% for cat in recipeCategory %}
-                <input type="checkbox" name="cat" data-inID="10" value="{{cat[0]}}" id="">{{cat[2]}}<br>
+              {% if cat[1] != None %}
+                <option value="{{cat[0]}}">{{cat[2]}}</option>
+              {% endif %}
             {% endfor %}
+          </select><br>
         {% endif %}
 
         <input type="search" hx-get="/recipe/search"
         hx-trigger="input changed delay:100ms, search"
-        hx-target="#ingredients-search" name="search">
+        hx-target="#ingredients-search" name="search"
+        form="fakeForm" placeholder="Suche nach Inhalten">
 
         <div id="ingredients-search"></div>
         <div id="ingredients"></div>
-      <div id="ingredients-template" hidden>
-        <div class="input-group" style="margin-top: 10px;">
-          <span class="input-group-text">Name</span>
-          <input class="form-control" type="number">
-          <div class="dropdown">
-            <button class="btn btn-primary dropdown-toggle rounded-0 rounded-end" aria-expanded="false" data-bs-toggle="dropdown" id="head1" type="button">Dropdown </button>
-              <div class="dropdown-menu">
-                {% for unit in units %}
-                <a class="dropdown-item" data-value="{{unit[0]}}" data-head="head1">{{unit[1]}}</a>
-                {% endfor %}
-              </div>
-          </div>
-        </div>
-      </div>
+        <button type="button" onclick="addNewField()">Neuer Step</button>
+        <div id="stepfields"></div>
+      
       <button type="submit" name="submit" class="submit">Create New</button>
     </form>
     <a href='/recipe/'>Zurück</a>
+  </div>
+  <div id="ingredients-template" hidden>
+    <div class="input-group" style="margin-top: 10px;">
+      <span class="input-group-text">Name</span>
+      <input class="form-control" type="number" required>
+      <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle rounded-0 rounded-end" aria-expanded="false" data-bs-toggle="dropdown" id="head1" type="button">Dropdown </button>
+          <div class="dropdown-menu">
+            {% for unit in units %}
+            <a class="dropdown-item" data-value="{{unit[0]}}" data-head="head1">{{unit[1]}}</a>
+            {% endfor %}
+          </div>
+      </div>
+    </div>
   </div>
   <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
