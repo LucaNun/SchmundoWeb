@@ -11,6 +11,7 @@ def index():
     return """
     <h2>Recipe</h2>
     <a href="/">Main</a><br>
+    <a href="/recipe/show">Show Recipes</a><br>
     <a href="/recipe/create">Create new</a><br>
     <a href="/recipe/change/">Change</a><br>
     <a href="/recipe/infinity">Infinity</a><br>
@@ -93,6 +94,15 @@ def change(id):
 @bp.route('/infinity')
 def infinity():
     return render_template("recipe/infinity.html")
+
+@bp.route('/show')
+def show():
+    cursor = mysql.connection.cursor()
+    cursor.execute(f"SELECT recipe.recipeID, user.username, recipe.name, recipe.amount FROM `recipe` INNER JOIN `user` ON recipe.userID=user.userID")
+
+    result = cursor.fetchall()
+    cursor.close()
+    return render_template("recipe/show.html", recipes=result)
 
 @bp.route('/load')
 def load():

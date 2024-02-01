@@ -1,0 +1,24 @@
+<!doctype html>
+<head>
+  <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+</head>
+<meta>
+  <title>Create Recipe</title>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  <link href="https://fonts.googleapis.com/css?family=Baloo+Thambi+2&display=swap" rel="stylesheet">
+  <link rel="icon" href="{{ url_for('static', filename='pic/Logo-o-H-1.png') }}">
+</meta>
+
+<body>
+  {% for recipe in recipes%}
+    <div>
+        User: {{recipe[1]}}<br>
+        Name: {{recipe[2]}}<br>
+        ID: {{recipe[0]}}<br>
+        Amount: {{recipe[3]}}<br>
+    </div><br><br>
+  {% endfor %}
+
+  <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+  
+</body>
