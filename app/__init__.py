@@ -18,8 +18,8 @@ def create_app(config=Config):
     from app.auth import bp as auth_bp
     app.register_blueprint(auth_bp, url_prefix="/auth")
 
-    from app.recipe import bp as auth_bp
-    app.register_blueprint(auth_bp, url_prefix="/recipe")
+    from app.recipe import bp as recipe_bp
+    app.register_blueprint(recipe_bp, url_prefix="/recipe")
 
 
     @app.route('/r')

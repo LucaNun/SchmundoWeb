@@ -10,16 +10,28 @@
 </meta>
 
 <body>
-  {% for recipe in recipes%}
     <div>   
         User: {{recipe[1]}}<br>
         Name: {{recipe[2]}}<br>
         ID: {{recipe[0]}}<br>
         Amount: {{recipe[3]}}<br>
-        <a href="/recipe/show/{{recipe[0]}}" style="text-decoration: none;">Show</a>
+        recipeCategory:  {{recipeCategory[0]}}<br>
+        {% if recipe[0] == userID %}
+          <a href="/recipe/change/{{recipe[0]}}">Ändern</a><br>
+        {% endif %}
+
+        {% for ingredient in ingredients %}
+          Zutat:{{ingredient[0]}} Gewicht {{ingredient[1]}}{{ingredient[2]}}  <br>
+        {% endfor %}
+        <br>
+        {% for step in steps %}
+          Step{{step[0]}}
+          Dauer:{{step[2]}} <br>
+          Text: {{step[1]}} <br>
+        {% endfor %}
+
+        <a href="/recipe/show" style="text-decoration: none;">Zurück</a>
     </div><br><br>
-  {% endfor %}
-  <a href="/recipe">Zurück</a><br>
 
   <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
   

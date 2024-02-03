@@ -99,10 +99,26 @@ def infinity():
 def show():
     cursor = mysql.connection.cursor()
     cursor.execute(f"SELECT recipe.recipeID, user.username, recipe.name, recipe.amount FROM `recipe` INNER JOIN `user` ON recipe.userID=user.userID")
-
     result = cursor.fetchall()
     cursor.close()
     return render_template("recipe/show.html", recipes=result)
+
+@bp.route('/show/<id>')
+def showID(id):
+    cursor = mysql.connection.cursor()
+    cursor.execute(f"SELECT recipe.recipeID, user.username, recipe.name, recipe.amount FROM `recipe` INNER JOIN `user` ON recipe.userID=user.userID WHERE recipe.recipeID = '{id}'")
+    recipe = cursor.fetchone()
+
+    cursor.execute(f"SELECT recipeCategory.name FROM recipeToCategory INNER JOIN recipeCategory ON recipeToCategory.recipeCategoryID=recipeCategory.recipeCategoryID WHERE recipeToCategory.recipeID = '{id}'")
+    recipeCategory = cursor.fetchone()
+
+    cursor.execute(f"SELECT ingredients.name, weight, unit.name FROM ingredientsToRecipe INNER JOIN ingredients ON ingredientsToRecipe.ingredientsID=ingredients.ingredientsID INNER JOIN unit ON ingredientsToRecipe.unitID=unit.unitID WHERE ingredientsToRecipe.recipeID = '{id}'")
+    ingredients = cursor.fetchall()
+
+    cursor.execute(f"SELECT step, text, duration FROM recipeStep WHERE recipeID = '{id}'")
+    steps = cursor.fetchall()
+    cursor.close()
+    return render_template("recipe/showID.html", recipe=recipe, recipeCategory=recipeCategory, ingredients=ingredients, steps=steps, userID=session.get("userID"))
 
 @bp.route('/load')
 def load():
