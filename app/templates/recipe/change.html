@@ -12,7 +12,7 @@
 <body>
     <div>   
         User: {{recipe[1]}}<br>
-        Name: {{recipe[2]}}<br>
+        Name: <input type="text" class="testinput" name="name" value="{{recipe[2]}}"><br>
         ID: {{recipe[0]}}<br>
         Amount: {{recipe[3]}}<br>
         recipeCategory:  {{recipeCategory[0]}}<br>
@@ -29,10 +29,15 @@
           Dauer:{{step[2]}} <br>
           Text: {{step[1]}} <br>
         {% endfor %}
+        <input type="text" class="testinput" name="inputTest">
+        <input type="text" class="testinput" name="inputTest2">
+        <button type="button" class="sendButton">Senden</button>
 
         <a href="/recipe/show" style="text-decoration: none;">Zurück</a>
     </div><br><br>
 
   <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='js/changeRecipe.js') }}"></script>
   
 </body>

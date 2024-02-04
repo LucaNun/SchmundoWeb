@@ -1,4 +1,4 @@
-from flask import request, session, redirect, url_for, render_template, flash
+from flask import request, session, redirect, url_for, render_template, flash, jsonify
 from markupsafe import escape
 import re
 
@@ -86,10 +86,29 @@ def create():
     return render_template("recipe/create.html", enumerate=enumerate, recipeCategory=recipeCategory, units=units)
 
 @bp.route('/change/<id>')
-#@login_required
+@login_required
 def change(id):
-    print(request.args)
-    return """ """
+    cursor = mysql.connection.cursor()
+    cursor.execute(f"SELECT userID FROM `recipe` WHERE userID = '{session.get("userID")}'")
+    result = cursor.fetchone()
+    if result == None:
+        flash("Das Rezept ist nicht von dir!", "error")
+        return redirect(url_for("recipe.showID", id=id))
+    
+    cursor = mysql.connection.cursor()
+    cursor.execute(f"SELECT recipe.recipeID, user.username, recipe.name, recipe.amount, recipe.userID FROM `recipe` INNER JOIN `user` ON recipe.userID=user.userID WHERE recipe.recipeID = '{id}'")
+    recipe = cursor.fetchone()
+
+    cursor.execute(f"SELECT recipeCategory.name FROM recipeToCategory INNER JOIN recipeCategory ON recipeToCategory.recipeCategoryID=recipeCategory.recipeCategoryID WHERE recipeToCategory.recipeID = '{id}'")
+    recipeCategory = cursor.fetchone()
+
+    cursor.execute(f"SELECT ingredients.name, weight, unit.name FROM ingredientsToRecipe INNER JOIN ingredients ON ingredientsToRecipe.ingredientsID=ingredients.ingredientsID INNER JOIN unit ON ingredientsToRecipe.unitID=unit.unitID WHERE ingredientsToRecipe.recipeID = '{id}'")
+    ingredients = cursor.fetchall()
+
+    cursor.execute(f"SELECT step, text, duration FROM recipeStep WHERE recipeID = '{id}'")
+    steps = cursor.fetchall()
+    cursor.close()
+    return render_template("recipe/change.html", recipe=recipe, recipeCategory=recipeCategory, ingredients=ingredients, steps=steps, userID=session.get("userID"))
 
 @bp.route('/infinity')
 def infinity():
@@ -106,7 +125,7 @@ def show():
 @bp.route('/show/<id>')
 def showID(id):
     cursor = mysql.connection.cursor()
-    cursor.execute(f"SELECT recipe.recipeID, user.username, recipe.name, recipe.amount FROM `recipe` INNER JOIN `user` ON recipe.userID=user.userID WHERE recipe.recipeID = '{id}'")
+    cursor.execute(f"SELECT recipe.recipeID, user.username, recipe.name, recipe.amount, recipe.userID FROM `recipe` INNER JOIN `user` ON recipe.userID=user.userID WHERE recipe.recipeID = '{id}'")
     recipe = cursor.fetchone()
 
     cursor.execute(f"SELECT recipeCategory.name FROM recipeToCategory INNER JOIN recipeCategory ON recipeToCategory.recipeCategoryID=recipeCategory.recipeCategoryID WHERE recipeToCategory.recipeID = '{id}'")
@@ -149,3 +168,11 @@ def search():
     if result == None:
         return ""
     return render_template("recipe/form/ingredients.html", ingredients=result)
+
+@bp.route('/ajax', methods=["GET", "POST"])
+def ajax():
+    print(request.get_json())
+    print(request.data)
+    print(request.args)
+    print(request.values)
+    return jsonify({'status': 'success'}), 200
