@@ -1,29 +1,29 @@
-var valuelist = []
+var valuelist = {}
+var ingredientlist = {}
+var steplist = {}
 
 $(document).on("keyup", ".testinput", function() {
-    console.log(this.name, this.value);
-    valuelist.push({this.name, this.value}); //Need a fix
-    console.log(valuelist)
-    console.log(JSON.stringify(valuelist))
-  });
+  var group = $(this).data("group");
+  if (group == "value") {
+    valuelist[this.name] = this.value;
+  }else if (group == "ingredient") {
+    var status = $(this).parent().data("status");
+    if (status == "old"){
+      ingredientlist[this.name] = this.value;
+    }
+  } else if (group == "step"){
+    steplist[this.name] = this.value;    
+  }
+  
+});
 
 
 $(document).on("click", ".sendButton", function() {
-  console.log(valuelist)
-  console.log(JSON.stringify(valuelist))
   $.ajax({
     url: 'http://127.0.0.1:5000/recipe/ajax',
     type: 'POST',
-    data: JSON.stringify(valuelist),
+    data: JSON.stringify({"valueliste": valuelist, "ingredientlist": ingredientlist, "steplist": steplist}),
     contentType: 'application/json',
-    dataType: 'json',
-    success: function(response) {
-        console.log(response);
-        console.log("funkt");
-    },
-    error: function(error) {
-        console.log(error);
-        console.log("funkt nicht");
-    }
+    dataType: 'json'
   });
 });

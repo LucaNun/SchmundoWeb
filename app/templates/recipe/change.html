@@ -12,7 +12,7 @@
 <body>
     <div>   
         User: {{recipe[1]}}<br>
-        Name: <input type="text" class="testinput" name="name" value="{{recipe[2]}}"><br>
+        Name: <input type="text" class="testinput" name="name" value="{{recipe[2]}}" data-group="value"><br>
         ID: {{recipe[0]}}<br>
         Amount: {{recipe[3]}}<br>
         recipeCategory:  {{recipeCategory[0]}}<br>
@@ -25,12 +25,16 @@
         {% endfor %}
         <br>
         {% for step in steps %}
-          Step{{step[0]}}
-          Dauer:{{step[2]}} <br>
-          Text: {{step[1]}} <br>
+          <div data-status="old">
+            Step{{step[0]}}
+            Dauer:{{step[2]}} <br>
+            Text: {{step[1]}} <br>
+          </div>
         {% endfor %}
-        <input type="text" class="testinput" name="inputTest">
-        <input type="text" class="testinput" name="inputTest2">
+        <div data-status="old">
+          <input type="text" class="testinput" name="inputTest" data-group="ingredient">
+        </div>
+        <input type="text" class="testinput" name="inputTest2" data-group="step">
         <button type="button" class="sendButton">Senden</button>
 
         <a href="/recipe/show" style="text-decoration: none;">Zurück</a>

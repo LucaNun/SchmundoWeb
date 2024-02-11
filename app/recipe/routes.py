@@ -172,7 +172,14 @@ def search():
 @bp.route('/ajax', methods=["GET", "POST"])
 def ajax():
     print(request.get_json())
-    print(request.data)
-    print(request.args)
-    print(request.values)
+    data = request.get_json()
+    id = 0
+    value = ""
+    for item in data.get("valueliste"):
+        if len(value) != 0:
+            value+= ","
+        value += f"`{item}`=`{data["valueliste"][item]}`"
+        print(item)
+    sql = f"UPDATE `recipe` SET {value} WHERE `recipeID`={id}"
+    print(sql)
     return jsonify({'status': 'success'}), 200
