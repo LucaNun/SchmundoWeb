@@ -85,7 +85,7 @@ def create():
     cursor.close()
     return render_template("recipe/create.html", enumerate=enumerate, recipeCategory=recipeCategory, units=units)
 
-@bp.route('/change/<id>')
+@bp.route('/change/<id>', methods=["GET", "POST"])
 @login_required
 def change(id):
     cursor = mysql.connection.cursor()
@@ -94,6 +94,35 @@ def change(id):
     if result == None:
         flash("Das Rezept ist nicht von dir!", "error")
         return redirect(url_for("recipe.showID", id=id))
+    
+    if request.method == "POST":
+        data = request.get_json()
+        sqlValues = ""
+        for item in data.get("valueliste"):
+            if len(sqlValues) != 0:
+                sqlValues+= ","
+            sqlValues += f"`{item}`=`{data["valueliste"][item]}`"
+        sql = f"UPDATE `recipe` SET {sqlValues} WHERE `recipeID`={id}"
+        #SQL
+        sqlValues = ""
+        sqlNew = {}
+        sqlDelete = []
+        for item in data.get("ingredientlist"):
+            if not data.get("ingredientlist")[item]:
+                sqlDelete.append(item)
+                continue
+            if item not in session.get("ch_ingredients")[0]: #FIX needed
+                sqlNew[item] = data.get("ingredientlist")[item]
+                continue
+            if len(sqlValues) != 0:
+                sqlValues+= ","
+            sqlValues += f"`{item}`=`{data["ingredientlist"][item]}`"
+        print(sqlDelete)
+        print(sqlNew)
+        print(sqlValues)
+        print(session.get("ch_ingredients"))
+        sql = f"UPDATE `recipe` SET {sqlValues} WHERE `recipeID`={id}"
+
     
     cursor = mysql.connection.cursor()
     cursor.execute(f"SELECT recipe.recipeID, user.username, recipe.name, recipe.amount, recipe.userID FROM `recipe` INNER JOIN `user` ON recipe.userID=user.userID WHERE recipe.recipeID = '{id}'")
@@ -108,6 +137,9 @@ def change(id):
     cursor.execute(f"SELECT step, text, duration FROM recipeStep WHERE recipeID = '{id}'")
     steps = cursor.fetchall()
     cursor.close()
+    session["ch_recipe"] = recipe
+    session["ch_ingredients"] = ingredients
+    session["ch_steps"] = steps
     return render_template("recipe/change.html", recipe=recipe, recipeCategory=recipeCategory, ingredients=ingredients, steps=steps, userID=session.get("userID"))
 
 @bp.route('/infinity')

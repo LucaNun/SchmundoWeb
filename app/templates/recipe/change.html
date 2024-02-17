@@ -13,7 +13,7 @@
     <div>   
         User: {{recipe[1]}}<br>
         Name: <input type="text" class="testinput" name="name" value="{{recipe[2]}}" data-group="value"><br>
-        ID: {{recipe[0]}}<br>
+        ID: <div id="recipeID" data-id="{{recipe[0]}}">{{recipe[0]}}</div><br>
         Amount: {{recipe[3]}}<br>
         recipeCategory:  {{recipeCategory[0]}}<br>
         {% if recipe[4] == userID %}
@@ -25,14 +25,17 @@
         {% endfor %}
         <br>
         {% for step in steps %}
-          <div data-status="old">
+          <div>
             Step{{step[0]}}
             Dauer:{{step[2]}} <br>
             Text: {{step[1]}} <br>
           </div>
         {% endfor %}
-        <div data-status="old">
+        <div>
           <input type="text" class="testinput" name="inputTest" data-group="ingredient">
+        </div>
+        <div>
+          <input type="text" class="testinput" name="Lachs" data-group="ingredient">
         </div>
         <input type="text" class="testinput" name="inputTest2" data-group="step">
         <button type="button" class="sendButton">Senden</button>
