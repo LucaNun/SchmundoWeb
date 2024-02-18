@@ -103,6 +103,7 @@ def change(id):
                 sqlValues+= ","
             sqlValues += f"`{item}`=`{data["valueliste"][item]}`"
         sql = f"UPDATE `recipe` SET {sqlValues} WHERE `recipeID`={id}"
+        print(sql)
         #SQL
         sqlValues = ""
         sqlNew = {}
@@ -111,9 +112,10 @@ def change(id):
             if not data.get("ingredientlist")[item]:
                 sqlDelete.append(item)
                 continue
-            if item not in session.get("ch_ingredients")[0]: #FIX needed
-                sqlNew[item] = data.get("ingredientlist")[item]
-                continue
+            for session_item in session.get("ch_ingredients"):
+                if session_item[0] == item:
+                    sqlNew[item] = data.get("ingredientlist")[item]
+                    continue
             if len(sqlValues) != 0:
                 sqlValues+= ","
             sqlValues += f"`{item}`=`{data["ingredientlist"][item]}`"
@@ -131,8 +133,12 @@ def change(id):
     cursor.execute(f"SELECT recipeCategory.name FROM recipeToCategory INNER JOIN recipeCategory ON recipeToCategory.recipeCategoryID=recipeCategory.recipeCategoryID WHERE recipeToCategory.recipeID = '{id}'")
     recipeCategory = cursor.fetchone()
 
-    cursor.execute(f"SELECT ingredients.name, weight, unit.name FROM ingredientsToRecipe INNER JOIN ingredients ON ingredientsToRecipe.ingredientsID=ingredients.ingredientsID INNER JOIN unit ON ingredientsToRecipe.unitID=unit.unitID WHERE ingredientsToRecipe.recipeID = '{id}'")
+    cursor.execute(f"SELECT ingredients.ingredientsID, ingredients.name, weight, unit.unitID FROM ingredientsToRecipe INNER JOIN ingredients ON ingredientsToRecipe.ingredientsID=ingredients.ingredientsID INNER JOIN unit ON ingredientsToRecipe.unitID=unit.unitID WHERE ingredientsToRecipe.recipeID = '{id}'")
     ingredients = cursor.fetchall()
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(f"SELECT * FROM unit")
+    units = cursor.fetchall()
 
     cursor.execute(f"SELECT step, text, duration FROM recipeStep WHERE recipeID = '{id}'")
     steps = cursor.fetchall()
@@ -140,7 +146,7 @@ def change(id):
     session["ch_recipe"] = recipe
     session["ch_ingredients"] = ingredients
     session["ch_steps"] = steps
-    return render_template("recipe/change.html", recipe=recipe, recipeCategory=recipeCategory, ingredients=ingredients, steps=steps, userID=session.get("userID"))
+    return render_template("recipe/change.html", recipe=recipe, recipeCategory=recipeCategory, ingredients=ingredients, steps=steps, userID=session.get("userID"), units=units)
 
 @bp.route('/infinity')
 def infinity():

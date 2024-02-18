@@ -2,16 +2,26 @@ var valuelist = {}
 var ingredientlist = {}
 var steplist = {}
 
-$(document).on("keyup", ".testinput", function() {
+$(document).on("change", ".testinput", function() {
   var group = $(this).data("group");
   if (group == "value") {
     valuelist[this.name] = this.value;
   }else if (group == "ingredient") {
-    ingredientlist[this.name] = this.value;
+    id = $(this).parent().data("id")
+    if (!ingredientlist[id]) {
+      ingredientlist[id] = {};
+    }
+    ingredientlist[id][this.name] = this.value;
   } else if (group == "step"){
     steplist[this.name] = this.value;    
   }
   
+});
+
+$(document).on("click", ".delete", function() {
+  id = $(this).parent().data("id")
+  ingredientlist[id] = null;
+  $(this).parent().remove();
 });
 
 

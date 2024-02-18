@@ -19,10 +19,27 @@
         {% if recipe[4] == userID %}
           <a href="/recipe/change/{{recipe[0]}}">Ändern</a><br>
         {% endif %}
+        <br>
+        <br>
 
         {% for ingredient in ingredients %}
-          Zutat:{{ingredient[0]}} {{ingredient[1]}}{{ingredient[2]}}  <br>
+          <div class="input-group" style="margin-top: 10px;" data-id="{{ingredient[0]}}">
+            <span class="input-group-text">{{ingredient[1]}}</span>
+            <input class="form-control testinput" type="number" required value="{{ingredient[2]}}" data-group="ingredient" name="weight">
+            <select class="form-select testinput" aria-label="Default select example" data-group="ingredient" name="unit">
+              {% for unit in units %}
+                {% if unit[0] == ingredients[3] %}
+                  <option selected value="{{unit[0]}}">{{unit[1]}}</option>
+                {% else %}
+                  <option value="{{unit[0]}}">{{unit[1]}}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+            <button class="delete">Delete</button>
+          </div>
         {% endfor %}
+
+        <br>
         <br>
         {% for step in steps %}
           <div>
