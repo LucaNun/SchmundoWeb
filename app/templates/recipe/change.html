@@ -1,15 +1,8 @@
-<!doctype html>
-<head>
-  <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
-</head>
-<meta>
-  <title>Create Recipe</title>
-  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-  <link href="https://fonts.googleapis.com/css?family=Baloo+Thambi+2&display=swap" rel="stylesheet">
-  <link rel="icon" href="{{ url_for('static', filename='pic/Logo-o-H-1.png') }}">
-</meta>
+{% extends "base.html" %}
 
-<body>
+{% block title %}Recipe Change{% endblock title %}
+
+{% block body %}
     <div>   
         User: {{recipe[1]}}<br>
         Name: <input type="text" class="testinput" name="name" value="{{recipe[2]}}" data-group="value"><br>
@@ -21,23 +14,29 @@
         {% endif %}
         <br>
         <br>
-
-        {% for ingredient in ingredients %}
-          <div class="input-group" style="margin-top: 10px;" data-id="{{ingredient[0]}}">
-            <span class="input-group-text">{{ingredient[1]}}</span>
-            <input class="form-control testinput" type="number" required value="{{ingredient[2]}}" data-group="ingredient" name="weight">
-            <select class="form-select testinput" aria-label="Default select example" data-group="ingredient" name="unit">
-              {% for unit in units %}
-                {% if unit[0] == ingredients[3] %}
-                  <option selected value="{{unit[0]}}">{{unit[1]}}</option>
-                {% else %}
-                  <option value="{{unit[0]}}">{{unit[1]}}</option>
-                {% endif %}
-              {% endfor %}
-            </select>
-            <button class="delete">Delete</button>
-          </div>
-        {% endfor %}
+        <div id="ingredients">
+          {% for ingredient in ingredients %}
+            <div class="input-group" style="margin-top: 10px;" data-id="{{ingredient[0]}}">
+              <span class="input-group-text">{{ingredient[1]}}</span>
+              <input class="form-control testinput" type="number" required value="{{ingredient[2]}}" data-group="ingredient" name="weight">
+              <select class="form-select testinput" aria-label="Default select example" data-group="ingredient" name="unit">
+                {% for unit in units %}
+                  {% if unit[0] == ingredient[3] %}
+                    <option selected value="{{unit[0]}}">{{unit[1]}}</option>
+                  {% else %}
+                    <option value="{{unit[0]}}">{{unit[1]}}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+              <button class="delete">Delete</button>
+            </div>
+          {% endfor %}
+        </div>
+        <input type="search" hx-get="/recipe/search"
+        hx-trigger="input changed delay:100ms, search"
+        hx-target="#ingredients-search" name="search"
+        form="fakeForm" placeholder="Suche nach Inhalten">
+        <div id="ingredients-search"></div>
 
         <br>
         <br>
@@ -59,9 +58,21 @@
 
         <a href="/recipe/show" style="text-decoration: none;">Zurück</a>
     </div><br><br>
+    <div id="ingredients-template" hidden>
+      <div class="input-group" style="margin-top: 10px;" data-id="">
+        <span class="input-group-text">Name</span>
+        <input class="form-control testinput" type="number" required data-group="ingredient" name="weight">
+        <select class="form-select testinput" aria-label="Default select example" data-group="ingredient" name="unit" required>
+          <option value="none">Einheit auswählen</option>
+          {% for unit in units %}
+              <option value="{{unit[0]}}">{{unit[1]}}</option>
+          {% endfor %}
+        </select>
+        <button class="delete">Delete</button>
+      </div>
+    </div>
+{% endblock body %}
 
-  <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-  <script src="{{ url_for('static', filename='js/changeRecipe.js') }}"></script>
-  
-</body>
+{% block script %}
+  <script src="{{ url_for('static', filename='js/changeRecipe.js') }}"></script>  
+{% endblock script %}

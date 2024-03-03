@@ -8,15 +8,7 @@ from app.auth.routes import login_required
 
 @bp.route('/')
 def index():
-    return """
-    <h2>Recipe</h2>
-    <a href="/">Main</a><br>
-    <a href="/recipe/show">Show Recipes</a><br>
-    <a href="/recipe/create">Create new</a><br>
-    <a href="/recipe/change/">Change</a><br>
-    <a href="/recipe/infinity">Infinity</a><br>
-    <a href="/recipe/load">Load</a><br>
-    """
+    return render_template("recipe/main.html")
 
 @bp.route('/create', methods=["GET", "POST"])
 @login_required
@@ -97,21 +89,26 @@ def change(id):
     
     if request.method == "POST":
         data = request.get_json()
-        sqlValues = ""
-        for item in data.get("valueliste"):
-            if len(sqlValues) != 0:
-                sqlValues+= ","
-            sqlValues += f"`{item}`=`{data["valueliste"][item]}`"
-        sql = f"UPDATE `recipe` SET {sqlValues} WHERE `recipeID`={id}"
-        print(sql)
+        sqlRecipe = ""
+        print(data)
+        if data.get("valueliste"):
+            for item in data.get("valueliste"):
+                if item == "name":
+                        sqlRecipe += f"`name`='{data["valueliste"][item]}'"
+                if item == "amount":
+                    if sqlRecipe:
+                        sqlRecipe += f", `amount`={data["valueliste"][item]}"
+                    else:
+                        sqlRecipe += f"`amount`={data["valueliste"][item]}"
+            sqlRecipe = [f"update `recipe` set {sqlRecipe} where `recipeID`={id}"]
         #SQL
-        sqlNew = ""
-        sqlChanges = ""
+        sqlNew = []
+        sqlChanges = []
         sqlDelete = []
         for item in data.get("ingredientlist"):
             #Delete Items
             if not data.get("ingredientlist")[item]:
-                sqlDelete.append(item)
+                sqlDelete.append(f"delete from ingredientsToRecipe where `ingredientsID`={item} AND `recipeID`={id}")
                 continue
             #Change Items
             changed = False
@@ -120,23 +117,29 @@ def change(id):
                     sqlvalues = ""
                     changes = data.get("ingredientlist")[item]
                     if changes.get("unit"):
-                        sqlvalues += f"unit = {changes.get('unit')}"
+                        sqlvalues += f"unitID = {changes.get('unit')}"
                     if changes.get("weight"):
                         if sqlvalues:
                             sqlvalues += f", weight = {changes.get('weight')}"
                         else:
                             sqlvalues += f"weight = {changes.get('weight')}"
-                    sql = f"UPDATE `recipe` SET {sqlvalues} WHERE `recipeID`={item}"
-                    print(sql)
-                    changed = False
+                    sqlChanges.append(f"UPDATE `ingredientsToRecipe` SET {sqlvalues} WHERE `recipeID`={id} AND `ingredientsID`={item}")
+                    changed = True
                     break
+            #New Items
             if not changed:
-                sqlNew += f"insert into ingredientTorecipe recipeID = {id}, weight = {data.get('ingredientlist')[item].get('weight')}, unit = {data.get('ingredientlist')[item].get('unit')}"
-        print(sqlDelete)
-        print(sqlNew)
-        print(sqlValues)
-        print(session.get("ch_ingredients"))
-        sql = f"UPDATE `recipe` SET {sqlValues} WHERE `recipeID`={id}"
+                if not data.get('ingredientlist')[item].get('weight') or not data.get('ingredientlist')[item].get('unit'):
+                    flash("Fülle alle Felder aus!", "error")
+                    return "",404
+                sqlNew.append(f"insert into ingredientsToRecipe (`ingredientsID`, `recipeID`, `weight`, `unitID`) VALUES ({item},{id},{data.get('ingredientlist')[item].get('weight')},{data.get('ingredientlist')[item].get('unit')})")
+
+        cursor = mysql.connection.cursor()
+        [cursor.execute(items) for items in sqlDelete]
+        [cursor.execute(items) for items in sqlChanges]
+        [cursor.execute(items) for items in sqlNew]
+        [cursor.execute(items) for items in sqlRecipe]
+        mysql.connection.commit()
+        cursor.close()
 
     
     cursor = mysql.connection.cursor()
