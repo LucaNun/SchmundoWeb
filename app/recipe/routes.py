@@ -105,20 +105,33 @@ def change(id):
         sql = f"UPDATE `recipe` SET {sqlValues} WHERE `recipeID`={id}"
         print(sql)
         #SQL
-        sqlValues = ""
-        sqlNew = {}
+        sqlNew = ""
+        sqlChanges = ""
         sqlDelete = []
         for item in data.get("ingredientlist"):
+            #Delete Items
             if not data.get("ingredientlist")[item]:
                 sqlDelete.append(item)
                 continue
+            #Change Items
+            changed = False
             for session_item in session.get("ch_ingredients"):
-                if session_item[0] == item:
-                    sqlNew[item] = data.get("ingredientlist")[item]
-                    continue
-            if len(sqlValues) != 0:
-                sqlValues+= ","
-            sqlValues += f"`{item}`=`{data["ingredientlist"][item]}`"
+                if session_item[0] == int(item):
+                    sqlvalues = ""
+                    changes = data.get("ingredientlist")[item]
+                    if changes.get("unit"):
+                        sqlvalues += f"unit = {changes.get('unit')}"
+                    if changes.get("weight"):
+                        if sqlvalues:
+                            sqlvalues += f", weight = {changes.get('weight')}"
+                        else:
+                            sqlvalues += f"weight = {changes.get('weight')}"
+                    sql = f"UPDATE `recipe` SET {sqlvalues} WHERE `recipeID`={item}"
+                    print(sql)
+                    changed = False
+                    break
+            if not changed:
+                sqlNew += f"insert into ingredientTorecipe recipeID = {id}, weight = {data.get('ingredientlist')[item].get('weight')}, unit = {data.get('ingredientlist')[item].get('unit')}"
         print(sqlDelete)
         print(sqlNew)
         print(sqlValues)
